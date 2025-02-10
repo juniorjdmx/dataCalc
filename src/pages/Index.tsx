@@ -103,6 +103,21 @@ const Index = () => {
     }
   };
 
+  const getBeneficiaryInfo = () => {
+    if (!jsonData?.Calculo?.gprec) return null;
+
+    const gprec = jsonData.Calculo.gprec;
+    const nome = typeof gprec.nomeBeneficiario === 'object' 
+      ? gprec.nomeBeneficiario["#text"] 
+      : gprec.nomeBeneficiario;
+    
+    const documento = typeof gprec.documentoFiscalBeneficiario === 'object'
+      ? gprec.documentoFiscalBeneficiario["#text"]
+      : gprec.documentoFiscalBeneficiario;
+
+    return { nome, documento };
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-8">
@@ -129,7 +144,10 @@ const Index = () => {
 
             <BeneficiaryInfo data={jsonData} />
 
-            <DataTable data={jsonData ? extractValues(jsonData) : []} />
+            <DataTable 
+              data={jsonData ? extractValues(jsonData) : []} 
+              beneficiaryInfo={getBeneficiaryInfo()}
+            />
           </div>
         )}
       </div>
