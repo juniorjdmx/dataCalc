@@ -25,6 +25,10 @@ interface DataTableProps {
     diferenca: number;
     dataInicial: string;
   }>;
+  beneficiaryInfo?: {
+    nome: string;
+    documento: string;
+  };
 }
 
 const formatCurrency = (value: number) => {
@@ -34,21 +38,30 @@ const formatCurrency = (value: number) => {
   }).format(value);
 };
 
-const DataTable = ({ data }: DataTableProps) => {
+const DataTable = ({ data, beneficiaryInfo }: DataTableProps) => {
   if (!data.length) return null;
 
   const exportToCSV = () => {
-    const headers = ['Data Inicial', 'Valor Corrigido', 'Valor Verba Para Contribuição Social', 'Diferença'];
-    const csvContent = [
-      headers.join(','),
-      ...data.map(row => [
-        row.dataInicial,
-        formatCurrency(row.valorCorrigido),
-        formatCurrency(row.valorVerbaParaContribuicaoSocial),
-        formatCurrency(row.diferenca)
-      ].join(','))
-    ].join('\n');
+    const csvRows = [];
+    
+    // Add beneficiary information
+    if (beneficiaryInfo) {
+      csvRows.push('Informações do Beneficiário');
+      csvRows.push(`Nome,${beneficiaryInfo.nome}`);
+      csvRows.push(`Documento Fiscal,${beneficiaryInfo.documento}`);
+      csvRows.push(''); // Empty line for spacing
+    }
 
+    // Add data table
+    csvRows.push(['Data Inicial', 'Valor Corrigido', 'Valor Verba Para Contribuição Social', 'Diferença'].join(','));
+    csvRows.push(...data.map(row => [
+      row.dataInicial,
+      formatCurrency(row.valorCorrigido),
+      formatCurrency(row.valorVerbaParaContribuicaoSocial),
+      formatCurrency(row.diferenca)
+    ].join(',')));
+
+    const csvContent = csvRows.join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -71,6 +84,8 @@ const DataTable = ({ data }: DataTableProps) => {
             th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
             th { background-color: #f5f5f5; }
             .header { margin-bottom: 30px; }
+            .beneficiary-info { margin-bottom: 30px; }
+            .beneficiary-info p { margin: 5px 0; }
             @media print {
               body { -webkit-print-color-adjust: exact; }
             }
@@ -81,6 +96,13 @@ const DataTable = ({ data }: DataTableProps) => {
             <h2>Relatório de Dados Processados</h2>
             <p>Data de geração: ${new Date().toLocaleDateString('pt-BR')}</p>
           </div>
+          ${beneficiaryInfo ? `
+            <div class="beneficiary-info">
+              <h3>Informações do Beneficiário</h3>
+              <p><strong>Nome:</strong> ${beneficiaryInfo.nome}</p>
+              <p><strong>Documento Fiscal:</strong> ${beneficiaryInfo.documento}</p>
+            </div>
+          ` : ''}
           <table>
             <thead>
               <tr>
