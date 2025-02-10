@@ -14,6 +14,7 @@ interface DataTableProps {
     valorCorrigido: number;
     valorVerbaParaContribuicaoSocial: number;
     diferenca: number;
+    dataInicial: string;
   }>;
 }
 
@@ -39,6 +40,7 @@ const DataTable = ({ data }: DataTableProps) => {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="text-center">Data Inicial</TableHead>
               <TableHead className="text-center">Valor Corrigido</TableHead>
               <TableHead className="text-center">Valor Verba Para Contribuição Social</TableHead>
               <TableHead className="text-center">Diferença</TableHead>
@@ -47,6 +49,9 @@ const DataTable = ({ data }: DataTableProps) => {
           <TableBody>
             {data.map((row, index) => (
               <TableRow key={index}>
+                <TableCell className="text-center">
+                  {row.dataInicial}
+                </TableCell>
                 <TableCell className="text-center font-medium">
                   {formatCurrency(row.valorCorrigido)}
                 </TableCell>

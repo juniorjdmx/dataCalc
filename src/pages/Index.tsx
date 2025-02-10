@@ -63,10 +63,16 @@ const Index = () => {
         if ('valorCorrigido' in json && 'valorVerbaParaContribuicaoSocial' in json) {
           const valorCorrigido = parseFloat(json.valorCorrigido["#text"] || 0);
           const valorVerba = parseFloat(json.valorVerbaParaContribuicaoSocial["#text"] || 0);
+          const dataInicialTimestamp = parseInt(json.dataInicial?.["#text"] || "0");
+          const dataInicial = dataInicialTimestamp ? 
+            new Date(dataInicialTimestamp).toLocaleDateString('pt-BR') : 
+            '-';
+          
           results.push({
             valorCorrigido,
             valorVerbaParaContribuicaoSocial: valorVerba,
-            diferenca: valorVerba - valorCorrigido
+            diferenca: valorVerba - valorCorrigido,
+            dataInicial
           });
         }
         for (const key in json) {
