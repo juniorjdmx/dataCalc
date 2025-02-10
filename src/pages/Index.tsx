@@ -13,21 +13,23 @@ const Index = () => {
   const [jsonData, setJsonData] = useState<any>(null);
   const [showSections, setShowSections] = useState(false);
 
-  const xmlToJson = (xml: Document) => {
+  const xmlToJson = (xml: Node): any => {
     const obj: any = {};
     
-    if (xml.nodeType === 1) {
-      if (xml.attributes.length > 0) {
+    if (xml.nodeType === 1) { // Element node
+      const element = xml as Element;
+      if (element.attributes && element.attributes.length > 0) {
         obj["@attributes"] = {};
-        for (let j = 0; j < xml.attributes.length; j++) {
-          const attribute = xml.attributes.item(j);
+        for (let j = 0; j < element.attributes.length; j++) {
+          const attribute = element.attributes.item(j);
           if (attribute) {
             obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
           }
         }
       }
-    } else if (xml.nodeType === 3) {
-      return xml.nodeValue?.trim();
+    } else if (xml.nodeType === 3) { // Text node
+      const text = xml.nodeValue?.trim();
+      return text ? text : null;
     }
 
     if (xml.hasChildNodes()) {
@@ -35,13 +37,17 @@ const Index = () => {
         const item = xml.childNodes.item(i);
         if (item) {
           const nodeName = item.nodeName;
-          if (typeof obj[nodeName] === "undefined") {
-            obj[nodeName] = xmlToJson(item as Document);
-          } else {
-            if (typeof obj[nodeName].push === "undefined") {
-              obj[nodeName] = [obj[nodeName]];
+          const result = xmlToJson(item);
+          
+          if (result !== null) {
+            if (typeof obj[nodeName] === "undefined") {
+              obj[nodeName] = result;
+            } else {
+              if (!Array.isArray(obj[nodeName])) {
+                obj[nodeName] = [obj[nodeName]];
+              }
+              obj[nodeName].push(result);
             }
-            obj[nodeName].push(xmlToJson(item as Document));
           }
         }
       }
